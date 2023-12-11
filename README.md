@@ -8,4 +8,5 @@
 * Java
 * Haskell
 * Erlang
+* Julia
 
