@@ -42,6 +42,18 @@ local function predictNextNumbers(differences)
     return numbers
 end
 
+local function predictPreviousNumbers(differences)
+    local lastDifferences = differences[#differences]
+    local numbers = {lastDifferences[1]}
+    for i=#differences-1,1,-1 do
+        local left = differences[i]
+        local right = numbers[#numbers]
+        local predictedNumber = left[1] - right
+        table.insert(numbers, predictedNumber)
+    end
+    return numbers
+end
+
 local function split(inputstr, sep)
       if sep == nil then
           sep = "%s"
@@ -62,7 +74,8 @@ local function parseNumbers(line)
 end
 
 local function main()
-    local sum = 0
+    local nextNumbers = 0
+    local previousNumbers = 0
     while true do
         local line = io.read()
         if line == nil then
@@ -70,10 +83,13 @@ local function main()
         end
         local numbers = parseNumbers(line)
         local differences = computeAllLevelsOfDifferencesBetweenNeighbours(numbers)
-        local predictedNumbers = predictNextNumbers(differences)
-        sum = sum + predictedNumbers[#predictedNumbers]
+        local predictedNextNumbers = predictNextNumbers(differences)
+        local predictedPreviousNumbers = predictPreviousNumbers(differences)
+        nextNumbers = nextNumbers + predictedNextNumbers[#predictedNextNumbers]
+        previousNumbers = previousNumbers + predictedPreviousNumbers[#predictedPreviousNumbers]
     end
-    print("Part 1:", sum)
+    print("Part 1:", nextNumbers)
+    print("Part 2:", previousNumbers)
 end
 
 main()
