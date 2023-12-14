@@ -9,4 +9,5 @@
 * Haskell
 * Erlang
 * Julia
+* Lua
 
