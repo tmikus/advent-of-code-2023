@@ -24,14 +24,20 @@ fn computeDistanceWithExpansion(
     emptyRows: ArrayList(usize),
     from: Point,
     to: Point,
+    expansionRate: usize,
 ) usize {
     const distance = computeDistance(from, to);
-    const expansion_x = computeHorizontalExpansion(emptyColumns, from, to);
-    const expansion_y = computeVerticalExpansion(emptyRows, from, to);
+    const expansion_x = computeHorizontalExpansion(emptyColumns, from, to, expansionRate);
+    const expansion_y = computeVerticalExpansion(emptyRows, from, to, expansionRate);
     return distance + expansion_x + expansion_y;
 }
 
-fn computeHorizontalExpansion(emptyColumns: ArrayList(usize), from: Point, to: Point) usize {
+fn computeHorizontalExpansion(
+    emptyColumns: ArrayList(usize),
+    from: Point,
+    to: Point,
+    expansionRate: usize,
+) usize {
     if (from.x == to.x) {
         return 0;
     }
@@ -40,13 +46,18 @@ fn computeHorizontalExpansion(emptyColumns: ArrayList(usize), from: Point, to: P
     const right_x = max(from.x, to.x);
     for (emptyColumns.items) |column_index| {
         if (column_index > left_x and column_index < right_x) {
-            expansion += 1;
+            expansion += (expansionRate - 1); // because we already counted one space in the original calculation
         }
     }
     return expansion;
 }
 
-fn computeVerticalExpansion(emptyRows: ArrayList(usize), from: Point, to: Point) usize {
+fn computeVerticalExpansion(
+    emptyRows: ArrayList(usize),
+    from: Point,
+    to: Point,
+    expansionRate: usize,
+) usize {
     if (from.y == to.y) {
         return 0;
     }
@@ -55,7 +66,7 @@ fn computeVerticalExpansion(emptyRows: ArrayList(usize), from: Point, to: Point)
     const right_y = max(from.y, to.y);
     for (emptyRows.items) |row_index| {
         if (row_index > left_y and row_index < right_y) {
-            expansion += 1;
+            expansion += (expansionRate - 1); // because we already counted one space in the original calculation
         }
     }
     return expansion;
@@ -168,17 +179,26 @@ pub fn main() !void {
     std.debug.print("Empty rows count: {d}\n", .{emptyRows.items.len});
     const stars = findStarCoords(lines);
     std.debug.print("Star count: {d}\n", .{stars.items.len});
-    var sum: i64 = 0;
+    var sumPart1: usize = 0;
+    var sumPart2: usize = 0;
     for (stars.items[0 .. stars.items.len - 1], 0..) |from_star, from_index| {
         for (stars.items[(from_index + 1)..stars.items.len]) |to_star| {
-            const distance: i64 = @as(i64, @intCast(computeDistanceWithExpansion(
+            sumPart1 += computeDistanceWithExpansion(
                 emptyColumns,
                 emptyRows,
                 from_star,
                 to_star,
-            )));
-            sum += distance;
+                2,
+            );
+            sumPart2 += computeDistanceWithExpansion(
+                emptyColumns,
+                emptyRows,
+                from_star,
+                to_star,
+                1_000_000,
+            );
         }
     }
-    std.debug.print("Part 1: {d}\n", .{sum});
+    std.debug.print("Part 1: {d}\n", .{sumPart1});
+    std.debug.print("Part 2: {d}\n", .{sumPart2});
 }
