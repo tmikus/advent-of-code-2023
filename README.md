@@ -10,4 +10,6 @@
 * Erlang
 * Julia
 * Lua
+* Kotlin
+* Zig
 
