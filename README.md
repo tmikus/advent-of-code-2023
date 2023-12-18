@@ -12,4 +12,5 @@
 * Lua
 * Kotlin
 * Zig
+* Go
 
