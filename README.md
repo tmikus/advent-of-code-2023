@@ -13,4 +13,5 @@
 * Kotlin
 * Zig
 * Go
+* Swift
 
