@@ -1,4 +1,4 @@
-function getPart1Answer(grid) {
+function computeLoad(grid) {
     let answer = 0;
     const gridHeight = grid.length;
     for (let rowIndex = 0; rowIndex < gridHeight; rowIndex++) {
@@ -35,12 +35,6 @@ function shiftRocksNorthInColumn(grid, columnIndex) {
     }
 }
 
-function printGrid(grid) {
-    for (let rowIndex = 0; rowIndex < grid.length; rowIndex++) {
-        console.log(grid[rowIndex].join(""));
-    }
-}
-
 function readInputGrid() {
     // Work on POSIX and Windows
     const fs = require("fs");
@@ -48,14 +42,66 @@ function readInputGrid() {
     return stdinBuffer.toString().trim().split("\n").map(row => row.split(""));
 }
 
-function main() {
-    const grid = readInputGrid();
-    console.log('Before shifting rocks north:');
-    printGrid(grid);
+function rotateGridClockwise(grid) {
+    const newGrid = [];
+    for (let columnIndex = 0; columnIndex < grid[0].length; columnIndex++) {
+        const row = []
+        for (let rowIndex = grid.length - 1; rowIndex >= 0; rowIndex--) {
+            row.push(grid[rowIndex][columnIndex]);
+        }
+        newGrid.push(row);
+    }
+    return newGrid;
+}
+
+function handlePartOfCycle(grid) {
     shiftRocksNorth(grid);
-    console.log('\nAfter shifting rocks north:');
-    printGrid(grid);
-    console.log('Part 1: ', getPart1Answer(grid));
+    return rotateGridClockwise(grid);
+}
+
+function computeLoads(grid) {
+    const loads = [];
+    for (let i = 0; i < 1000; i++) {
+        grid = handlePartOfCycle(grid);
+        grid = handlePartOfCycle(grid);
+        grid = handlePartOfCycle(grid);
+        grid = handlePartOfCycle(grid);
+        loads.push(computeLoad(grid));
+    }
+    return loads;
+}
+
+function repeatsAfter(loads, cycle, startIndex) {
+    for (let offset = 0; offset < cycle.length; offset++) {
+        if (loads[startIndex + offset] !== cycle[offset % cycle.length]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function findShortestRepeatingCycle(loads) {
+    for (let cycleStartIndex = 0; cycleStartIndex < loads.length; cycleStartIndex++) {
+        for (let cycleLength = 2; cycleLength < loads.length - cycleStartIndex; cycleLength++) {
+            const cycle = loads.slice(cycleStartIndex, cycleStartIndex + cycleLength);
+            if (repeatsAfter(loads, cycle, cycleStartIndex + cycleLength)) {
+                return [cycleStartIndex, cycleLength];
+            }
+        }
+    }
+    return [0, 0];
+}
+
+function main() {
+    let grid = readInputGrid();
+    shiftRocksNorth(grid);
+    console.log('Part 1: ', computeLoad(grid));
+    const loads = computeLoads(grid);
+    const [cycleStartIndex, cycleLength] = findShortestRepeatingCycle(loads);
+    const numberOfCycles = 1_000_000_000;
+    const index = (numberOfCycles - cycleStartIndex - 1) % cycleLength;
+    const longestCycle = loads.slice(cycleStartIndex, cycleStartIndex + cycleLength);
+    console.log('Part 2: ', longestCycle[index]);
 }
 
 main();
