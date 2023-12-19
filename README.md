@@ -15,4 +15,5 @@
 * Go - Day 12
 * Swift - Day 13
 * JavaScript - Day 14
+* PostgreSQL - Day 15
 
